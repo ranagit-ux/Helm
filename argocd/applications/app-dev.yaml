@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: frontend-environments
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/ranagit-ux/Helm.git
+        revision: main
+        directories:
+          - path: environment/*/frontend
+  template:
+    metadata:
+      name: 'frontend-{{path[1]}}'
+    spec:
+      project: default
+      sources:
+        # Helm chart
+        - repoURL: https://github.com/ranagit-ux/Helm.git
+          targetRevision: main
+          path: charts/frontend
+          helm:
+            valueFiles:
+              - '$values/{{path}}/values.yaml'
+        # Same Git repository containing environment values
+        - repoURL: https://github.com/ranagit-ux/Helm.git
+          targetRevision: main
+          ref: values
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'frontend-{{path[1]}}'
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
