@@ -21,12 +21,12 @@ spec:
           targetRevision: main
           path: charts/frontend
           helm:
-            directories:
-              - {{path}}
+            valueFiles:
+              - '$values'
         # Same Git repository containing environment values
-        # - repoURL: https://github.com/ranagit-ux/Helm.git
-        #   targetRevision: main
-        #   ref: values
+        - repoURL: https://github.com/ranagit-ux/Helm.git
+          targetRevision: main
+          ref: values
       destination:
         server: https://kubernetes.default.svc
         namespace: 'frontend-{{path[1]}}'
